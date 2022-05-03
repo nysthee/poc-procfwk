@@ -13,6 +13,10 @@
 			"procfwk"
 		],
 		"type": "AzureSqlTable",
-		"schema": []
+		"schema": [],
+		"typeProperties": {
+			"schema": "procfwk",
+			"table": "Orchestrators"
+		}
 	}
 }
