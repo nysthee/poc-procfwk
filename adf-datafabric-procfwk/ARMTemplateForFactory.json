@@ -9,15 +9,15 @@
 		},
 		"FrameworkFunctions_properties_typeProperties_functionAppUrl": {
 			"type": "string",
-			"defaultValue": "https://frameworksupportfunctions.azurewebsites.net"
+			"defaultValue": "https://datafabric-procfwk.azurewebsites.net"
 		},
 		"Keys_properties_typeProperties_baseUrl": {
 			"type": "string",
-			"defaultValue": "https://FrameworkKeys.vault.azure.net/"
+			"defaultValue": "https://datafabric-procfwk.vault.azure.net/"
 		},
 		"SupportDatabase_properties_typeProperties_connectionString_secretName": {
 			"type": "string",
-			"defaultValue": "FrameworkMetadataDev"
+			"defaultValue": "SQLConnectionString"
 		}
 	},
 	"variables": {
@@ -3841,9 +3841,14 @@
 						"secretName": "FrameworkFunctionsKey"
 					},
 					"authentication": "Anonymous"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
 				}
 			},
 			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]",
 				"[concat(variables('factoryId'), '/linkedServices/Keys')]"
 			]
 		},

@@ -6,13 +6,13 @@
 			"value": "adf-datafabric-procfwk"
 		},
 		"FrameworkFunctions_properties_typeProperties_functionAppUrl": {
-			"value": "https://frameworksupportfunctions.azurewebsites.net"
+			"value": "https://datafabric-procfwk.azurewebsites.net"
 		},
 		"Keys_properties_typeProperties_baseUrl": {
-			"value": "https://FrameworkKeys.vault.azure.net/"
+			"value": "https://datafabric-procfwk.vault.azure.net/"
 		},
 		"SupportDatabase_properties_typeProperties_connectionString_secretName": {
-			"value": "FrameworkMetadataDev"
+			"value": "SQLConnectionString"
 		},
 		"containerUri": {
 			"value": ""

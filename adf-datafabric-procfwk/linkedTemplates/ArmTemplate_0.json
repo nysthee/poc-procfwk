@@ -9,15 +9,15 @@
 		},
 		"Keys_properties_typeProperties_baseUrl": {
 			"type": "string",
-			"defaultValue": "https://FrameworkKeys.vault.azure.net/"
-		},
-		"FrameworkFunctions_properties_typeProperties_functionAppUrl": {
-			"type": "string",
-			"defaultValue": "https://frameworksupportfunctions.azurewebsites.net"
+			"defaultValue": "https://datafabric-procfwk.vault.azure.net/"
 		},
 		"SupportDatabase_properties_typeProperties_connectionString_secretName": {
 			"type": "string",
-			"defaultValue": "FrameworkMetadataDev"
+			"defaultValue": "SQLConnectionString"
+		},
+		"FrameworkFunctions_properties_typeProperties_functionAppUrl": {
+			"type": "string",
+			"defaultValue": "https://datafabric-procfwk.azurewebsites.net"
 		}
 	},
 	"variables": {
@@ -468,33 +468,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/FrameworkFunctions')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Interact with the Azure Functions App used as middle ware when making requests to Worker pipelines. Authentication done at the Function App level.",
-				"annotations": [
-					"procfwk"
-				],
-				"type": "AzureFunction",
-				"typeProperties": {
-					"functionAppUrl": "[parameters('FrameworkFunctions_properties_typeProperties_functionAppUrl')]",
-					"functionKey": {
-						"type": "AzureKeyVaultSecret",
-						"store": {
-							"referenceName": "Keys",
-							"type": "LinkedServiceReference"
-						},
-						"secretName": "FrameworkFunctionsKey"
-					},
-					"authentication": "Anonymous"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/Keys')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/SupportDatabase')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -542,77 +515,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/managedVirtualNetworks/default')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Email Sender')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Provide a simple abstract over the send email function with request body item exposed as pipeline parameters.",
-				"activities": [
-					{
-						"name": "Send Email",
-						"description": "Use an Azure Function to perform an SMTP client email send operation.",
-						"type": "AzureFunctionActivity",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.00:10:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"functionName": "SendEmail",
-							"method": "POST",
-							"headers": {},
-							"body": {
-								"value": "{\n\"emailRecipients\": \"@{pipeline().parameters.Recipients}\",\n\"emailCcRecipients\": \"@{pipeline().parameters.CcRecipients}\",\n\"emailBccRecipients\": \"@{pipeline().parameters.BccRecipients}\",\n\"emailSubject\": \"@{pipeline().parameters.Subject}\",\n\"emailBody\": \"@{pipeline().parameters.Body}\",\n\"emailImportance\": \"@{pipeline().parameters.Importance}\"\n}",
-								"type": "Expression"
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "FrameworkFunctions",
-							"type": "LinkedServiceReference"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"Recipients": {
-						"type": "string"
-					},
-					"CcRecipients": {
-						"type": "string"
-					},
-					"BccRecipients": {
-						"type": "string"
-					},
-					"Subject": {
-						"type": "string"
-					},
-					"Body": {
-						"type": "string"
-					},
-					"Importance": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "_ProcFwk/_ProcFwkUtils"
-				},
-				"annotations": [
-					"procfwk",
-					"Utils"
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/FrameworkFunctions')]"
 			]
 		},
 		{
@@ -734,6 +636,109 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/SupportDatabase')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FrameworkFunctions')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Interact with the Azure Functions App used as middle ware when making requests to Worker pipelines. Authentication done at the Function App level.",
+				"annotations": [
+					"procfwk"
+				],
+				"type": "AzureFunction",
+				"typeProperties": {
+					"functionAppUrl": "[parameters('FrameworkFunctions_properties_typeProperties_functionAppUrl')]",
+					"functionKey": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "Keys",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "FrameworkFunctionsKey"
+					},
+					"authentication": "Anonymous"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]",
+				"[concat(variables('factoryId'), '/linkedServices/Keys')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Email Sender')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Provide a simple abstract over the send email function with request body item exposed as pipeline parameters.",
+				"activities": [
+					{
+						"name": "Send Email",
+						"description": "Use an Azure Function to perform an SMTP client email send operation.",
+						"type": "AzureFunctionActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.00:10:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"functionName": "SendEmail",
+							"method": "POST",
+							"headers": {},
+							"body": {
+								"value": "{\n\"emailRecipients\": \"@{pipeline().parameters.Recipients}\",\n\"emailCcRecipients\": \"@{pipeline().parameters.CcRecipients}\",\n\"emailBccRecipients\": \"@{pipeline().parameters.BccRecipients}\",\n\"emailSubject\": \"@{pipeline().parameters.Subject}\",\n\"emailBody\": \"@{pipeline().parameters.Body}\",\n\"emailImportance\": \"@{pipeline().parameters.Importance}\"\n}",
+								"type": "Expression"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "FrameworkFunctions",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"Recipients": {
+						"type": "string"
+					},
+					"CcRecipients": {
+						"type": "string"
+					},
+					"BccRecipients": {
+						"type": "string"
+					},
+					"Subject": {
+						"type": "string"
+					},
+					"Body": {
+						"type": "string"
+					},
+					"Importance": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "_ProcFwk/_ProcFwkUtils"
+				},
+				"annotations": [
+					"procfwk",
+					"Utils"
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/FrameworkFunctions')]"
 			]
 		},
 		{
