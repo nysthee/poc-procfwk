@@ -11,8 +11,9 @@
 			"location": {
 				"type": "AzureBlobStorageLocation"
 			},
-			"columnDelimiter": ",",
+			"columnDelimiter": ";",
 			"escapeChar": "\\",
+			"firstRowAsHeader": true,
 			"quoteChar": "\""
 		},
 		"schema": []
