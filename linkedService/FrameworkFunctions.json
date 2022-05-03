@@ -17,6 +17,10 @@
 				"secretName": "FrameworkFunctionsKey"
 			},
 			"authentication": "Anonymous"
+		},
+		"connectVia": {
+			"referenceName": "AutoResolveIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
 		}
 	}
 }
